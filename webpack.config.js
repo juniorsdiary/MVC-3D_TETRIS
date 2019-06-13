@@ -1,7 +1,5 @@
-const chunks = require('./entries.js');
-
 module.exports = {
-  entry: chunks,
+  entry: './index.js',
   module: {
     rules: [
       {
@@ -41,7 +39,7 @@ module.exports = {
         ]
       },
       {
-        test: /\.otf$/,
+        test: /\.(otf|woff|woff2)$/,
         use: {
           loader: "file-loader",
           options: {

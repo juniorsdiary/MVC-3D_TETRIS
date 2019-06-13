@@ -2,7 +2,6 @@ const path = require('path');
 const merge = require('webpack-merge');
 const common = require('./webpack.config.js');
 const autoprefixer = require('autoprefixer');
-const findHtmlFiles = require('./findHtmlFiles.js');
 
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -25,8 +24,16 @@ module.exports = merge(common, {
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new MiniCssPlugin({filename: "[name].css"})
-  ].concat(findHtmlFiles),
+    new MiniCssPlugin({filename: "[name].css"}),
+    new HtmlWebpackPlugin({ // plugin for html files that alows us to specify options to handle different rules
+      template: './src/index.html',
+      minify: {
+        removeAttributeQuotes: true,
+        collapseWhitespace: true,
+        removeComments: true
+      }
+    })
+  ],
   module: {
     rules: [
       {

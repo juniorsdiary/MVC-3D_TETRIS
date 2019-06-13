@@ -36,4 +36,4 @@ var settings = {
     }
 };
 
-smartgrid('./src/styles/utils', settings);
+smartgrid('./src/styles', settings);

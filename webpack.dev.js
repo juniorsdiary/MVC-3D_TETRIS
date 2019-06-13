@@ -1,7 +1,7 @@
 const path = require('path');
 const merge = require('webpack-merge');
 const common = require('./webpack.config.js');
-const findHtmlFiles = require('./findHtmlFiles.js');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = merge(common, {
     mode: 'development',
@@ -11,7 +11,7 @@ module.exports = merge(common, {
     },
     devServer: {
       overlay: true,
-      contentBase: './src/views/index.pug',
+      contentBase: './src/index.html',
       watchContentBase: true
     },
     devtool: 'eval-sourcemap',
@@ -27,5 +27,5 @@ module.exports = merge(common, {
         }
       ]
     },
-    plugins: [].concat(findHtmlFiles)
+    plugins: [new HtmlWebpackPlugin({template: './src/index.html'})]
 })
