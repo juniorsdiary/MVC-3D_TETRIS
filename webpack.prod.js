@@ -9,30 +9,26 @@ const MiniCssPlugin = require('mini-css-extract-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
-
 module.exports = merge(common, {
   mode: 'production',
   output: {
     path: path.join(__dirname, '/build'),
-    filename: 'js/[name].js'
+    filename: 'js/[name].js',
   },
   optimization: {
-      minimizer: [
-        new OptimizeCssAssetsPlugin(),
-        new TerserPlugin()
-      ]
+    minimizer: [new OptimizeCssAssetsPlugin(), new TerserPlugin()],
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new MiniCssPlugin({filename: "[name].css"}),
-    new HtmlWebpackPlugin({ // plugin for html files that alows us to specify options to handle different rules
+    new MiniCssPlugin({ filename: '[name].css' }),
+    new HtmlWebpackPlugin({
       template: './src/index.html',
       minify: {
         removeAttributeQuotes: true,
         collapseWhitespace: true,
-        removeComments: true
-      }
-    })
+        removeComments: true,
+      },
+    }),
   ],
   module: {
     rules: [
@@ -40,22 +36,22 @@ module.exports = merge(common, {
         test: /\.scss$/,
         use: [
           MiniCssPlugin.loader,
-          "css-loader",
+          'css-loader',
           'group-css-media-queries-loader',
           {
             loader: 'postcss-loader',
             options: {
-                plugins: [
-                    autoprefixer({
-                        browsers:['ie >= 8', 'last 4 version']
-                    })
-                ],
-                sourceMap: true
-            }
+              plugins: [
+                autoprefixer({
+                  browsers: ['ie >= 8', 'last 4 version'],
+                }),
+              ],
+              sourceMap: true,
+            },
           },
-          "sass-loader",
-        ]
+          'sass-loader',
+        ],
       },
-    ]
-  }
-})
+    ],
+  },
+});
