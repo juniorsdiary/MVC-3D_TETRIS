@@ -7,5 +7,6 @@ module.exports = {
   bracketSpacing: true,
   jsxBracketSameLine: true,
   arrowParens: 'avoid',
-  parser: 'babel'
+  parser: 'babel',
+  printWidth: 120,
 };

@@ -1,3 +1,231 @@
 @import '_normalize.css';
 @import '_default';
 @import 'smart-grid';
+
+* {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 13px;
+}
+body {
+  background: rgb(51, 80, 16);
+  height: 625px;
+}
+
+.container {
+  position: relative;
+  width: 300px;
+  height: 600px;
+  margin: auto;
+  perspective: 600px;
+  transform-style: preserve-3d;
+}
+
+.back {
+  position: absolute;
+  width: inherit;
+  height: inherit;
+  transform-style: preserve-3d;
+  transform: rotateX(40deg) rotateY(-180deg) translate3d(0px, -79px, -43px);
+}
+
+.level {
+  height: 300px;
+  border: none;
+  outline: none;
+}
+
+.cube {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  transform-style: preserve-3d;
+  transform-origin: center center;
+}
+
+.cube_side {
+  position: absolute;
+  width: inherit;
+  height: inherit;
+  outline: 1px solid black;
+}
+
+.cube_bottom {
+  transform: translate3d(0px, 0px, 0px);
+}
+
+.cube_top {
+  transform: translate3d(0px, 0px, -30px);
+}
+
+.cube_front {
+  transform: rotateX(-90deg) translate3d(0px, 15px, -15px);
+}
+
+.cube_back {
+  transform: rotateX(90deg) translate3d(0px, -15px, -15px);
+}
+
+.cube_left {
+  transform: rotateY(-90deg) translate3d(-15px, 0px, 15px);
+}
+
+.cube_right {
+  transform: rotateY(90deg) translate3d(15px, 0px, 15px);
+}
+
+.T {
+  background: rgb(252, 0, 44)
+}
+
+.Q {
+  background: rgb(126, 90, 17)
+}
+
+.Z {
+  background: rgb(4, 74, 187)
+}
+
+.S {
+  background: rgb(22, 219, 233)
+}
+
+.L {
+  background: rgb(50, 147, 249)
+}
+
+.J {
+  background: rgb(178, 232, 42)
+}
+
+.I {
+  background: rgb(141, 134, 145)
+}
+
+.row {
+  margin: 0;
+  padding: 0;
+  height: 30px;
+  display: flex;
+}
+
+.cell {
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  outline: 1px solid white;
+}
+
+.containerInfo, .containerNextFigure, .containerControls, .containerMenu {
+  position: absolute;
+  width: 20%;
+  height: 25%;
+  perspective: 500px;
+}
+
+.infoData, .next, .controls, .menu {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: black;
+  color: yellow;
+  outline: 1px solid white;
+  transform-style: preserve-3d;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.score {
+  display: flex;
+}
+
+.containerInfo {
+  top: 0;
+  left: 0;
+  margin-left: 1%;
+}
+
+.containerNextFigure {
+  top: 0;
+  right: 0;
+  margin-right: 1%;
+}
+
+.containerMenu {
+  top: 0;
+  left: 0;
+  margin-left: 1%;
+}
+
+.containerControls {
+  top: 0;
+  right: 0;
+  margin-right: 1%;
+}
+
+.next {
+  transform: rotateY(-10deg) translate3d(-60px, 60px, 120px);
+}
+
+.menu {
+  transform: rotateY(10deg) translate3d(60px, 295px, 120px);
+}
+
+.controls {
+  transform: rotateY(-10deg) translate3d(-60px, 295px, 120px);
+}
+
+.infoData {
+  transform: rotateY(10deg) translate3d(60px, 60px, 120px);
+}
+
+.nextFigure {
+  width: 120px;
+  height: 120px;
+  outline: 1px solid white;
+  transform: rotateY(-180deg) translate3d(0px, 0px, -1px);
+}
+
+.next p, .controls p, .menu p {
+  margin: 0 0 10px 0;
+  padding: 0;
+}
+
+.infoData p {
+  font-size: 15px;
+}
+
+.menu p, #start {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+#gameOver {
+  font-size: 60px;
+  color: yellow;
+  position: absolute;
+  padding: 0;
+  width: 600px;
+  left: 50%;
+  margin-left: -300px;
+  top: 200px;
+  z-index: 99999;
+  display: none;
+  text-align: center;
+}
+
+#starGame {
+  position: relative;
+  top: -30px;
+  width: 20%;
+  height: 50px;
+  background: black;
+  color: yellow;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  outline: 1px solid white;
+  margin: auto;
+}
