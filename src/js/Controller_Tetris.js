@@ -4,7 +4,15 @@ import Model from './Model_Tetris';
 const Controller = (() => {
   const nextField = document.getElementById('nextFigure');
   const gameField = document.getElementById('back');
-  let figure, nextfigure, figureInitialCoords, nextFigureInitialCoords;
+  let figures,
+    positions,
+    curFigure,
+    nextFigure,
+    figureInitialCoords,
+    nextFigureInitialCoords,
+    interval = 1000,
+    timer,
+    isACtive = false;
   const createFields = () => {
     const cellsAndRows_1 = Model.computeCellsAndRows(gameField);
     const cellsAndRows_2 = Model.computeCellsAndRows(nextField);
@@ -12,40 +20,55 @@ const Controller = (() => {
     View.renderField(cellsAndRows_1, gameField);
   };
   const startGame = () => {
-    nextfigure = Model.chooseFigure();
-    nextFigureInitialCoords = Model.setInitialPosition();
-    View.renderFigure(nextFigureInitialCoords, nextField, nextfigure.name);
-    figure = Model.chooseFigure();
-    figureInitialCoords = Model.setInitialPosition();
-    View.renderFigure(figureInitialCoords, gameField, figure.name);
+    defineFigures();
     addEvent();
     initiateGame();
   };
+  const defineFigures = () => {
+    figures = Model.chooseFigure();
+    positions = Model.setInitialPosition();
+    curFigure = figures.currentFigure;
+    nextFigure = figures.nextFigure;
+    figureInitialCoords = positions.curInitPosition;
+    nextFigureInitialCoords = positions.nextInitPositions;
+    View.renderFigure(figureInitialCoords, gameField, curFigure.name);
+    View.renderFigure(nextFigureInitialCoords, nextField, nextFigure.name);
+  };
   const moveDown = () => {
-    if (Model.isWayDown(gameField)) {
+    if (!Model.isWayDown(gameField)) {
       const newCoords = Model.changeLevel();
       View.clearFigure();
-      View.renderFigure(newCoords, gameField, figure.name);
+      View.renderFigure(newCoords, gameField, curFigure.name);
     } else {
       View.freezeFigure();
-      // Model.setInitialSettings();
-      // figure = Model.chooseFigure();
-      // figureInitialCoords = Model.setInitialPosition();
-      // View.renderFigure(figureInitialCoords, gameField, figure.name);
+      View.clearNextField();
+      defineFigures();
+      isNeedToClearLvl();
     }
   };
-  const moveHor = () => {
-    // this._changeCells(event.keyCode);
-    // gameField._remove();
-    // gameField._appendFigure();
+  const moveHor = step => {
+    let checkPath = Model.isWayAside(gameField, step);
+    if (checkPath) {
+      const newCoords = Model.changePositinon(step);
+      View.clearFigure();
+      View.renderFigure(newCoords, gameField, curFigure.name);
+    }
   };
   const rotateEvent = () => {
-    // this._rotate();
-    // gameField._remove();
-    // gameField._appendFigure();
+    let checkRotation = Model.isRotationPossible(gameField);
+    if (checkRotation) {
+      const newCoords = Model.rotateFigure();
+      View.clearFigure();
+      View.renderFigure(newCoords, gameField, curFigure.name);
+    }
   };
   const pause = () => {
-    // game.pauseGame();
+    if (isACtive) {
+      isACtive = false;
+      window.clearInterval(timer);
+    } else {
+      initiateGame();
+    }
   };
   const addEvent = () => {
     window.addEventListener('keydown', () => {
@@ -54,10 +77,10 @@ const Controller = (() => {
           moveDown();
           break;
         case 37:
-          moveHor();
+          moveHor(1);
           break;
         case 39:
-          moveHor();
+          moveHor(-1);
           break;
         case 38:
           rotateEvent();
@@ -69,7 +92,24 @@ const Controller = (() => {
     });
   };
   const initiateGame = () => {
-    // timer = setInterval(Model.moveDown(), interval);
+    isACtive = true;
+    timer = setInterval(() => moveDown(), interval);
+  };
+  const isNeedToClearLvl = () => {
+    let nodesLevels = document.querySelectorAll('.row');
+    let levelsToErase = Model.countLevelsToErase();
+    if (levelsToErase.length > 0) {
+      // scoreClass._addScore(index);
+      // game._changeSpeed(index);
+      levelsToErase.forEach(levelIndex => {
+        Array.from(nodesLevels[levelIndex].children).forEach(cell => cell.removeChild(cell.firstElementChild));
+      });
+
+      while (levelsToErase.length > 0) {
+        // moveLevels(levelsToErase);
+        levelsToErase.shift();
+      }
+    }
   };
   return {
     createFields,

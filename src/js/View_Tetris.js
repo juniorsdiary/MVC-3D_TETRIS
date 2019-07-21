@@ -56,6 +56,11 @@ const View = (() => {
       item.classList.remove('activeCube');
       item.classList.add('staticCube');
     });
+    figure = [];
+  };
+  const clearNextField = () => {
+    nextFigure.forEach(item => item.parentNode.removeChild(item));
+    nextFigure = [];
   };
   return {
     showCurrentScore,
@@ -63,8 +68,9 @@ const View = (() => {
     showCurrentLevel,
     renderField,
     renderFigure,
-    clearFigure,
     freezeFigure,
+    clearFigure,
+    clearNextField,
   };
 })();
 
