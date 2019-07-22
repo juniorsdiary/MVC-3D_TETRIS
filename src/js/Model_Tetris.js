@@ -65,7 +65,18 @@ const figures = [
 ];
 // Model ответственнен за расчет всех поступающих данных от контроллера и действий юзера. Здесь будут располагаться все методы и свойства которые управляют состоянием внутренних данных приложения
 const ModelTetris = (() => {
-  let randomCurrentNumber, randomNextNumber, currentFigure, curPositionIndex, nextFigure;
+  const scoreEquivalent = [5, 15, 30, 40];
+  const levelEquivalent = [1, 2, 3, 4];
+  let nodesLevels = document.getElementsByClassName('row'),
+    levelsToErase = [],
+    randomCurrentNumber,
+    randomNextNumber,
+    currentFigure,
+    curPositionIndex,
+    nextFigure,
+    currentScore = 0,
+    highScore = 0,
+    curLevel = 0;
   const computeCellsAndRows = parent => {
     return {
       cells: parseInt(getComputedStyle(parent).width) / 30,
@@ -142,13 +153,114 @@ const ModelTetris = (() => {
     return checkCubeCoords(parent, coords, 1) && checkCubeCoords(parent, coords, -1);
   };
   const countLevelsToErase = () => {
-    let nodesLevels = document.querySelectorAll('.row');
-    let levelsHTML = Array.from(nodesLevels);
-    let levelsToErase = [];
+    let levelsHTML = [...Array.from(nodesLevels)];
     levelsHTML
       .map(item => Array.from(item.children).every(elem => elem.firstElementChild))
       .forEach((item, i) => (item ? levelsToErase.push(i) : null));
     return levelsToErase;
+  };
+  const deleteLevels = () => {
+    // delete the full levels from the game field
+    levelsToErase.forEach(levelIndex => {
+      let cellsToErase = Array.from(nodesLevels[levelIndex].children);
+      cellsToErase.forEach(cell => cell.removeChild(cell.firstElementChild));
+    });
+  };
+  const moveLevels = levelInd => {
+    let statucCubes = [];
+    let levelsHTML = [...Array.from(nodesLevels)];
+    // find all the static cubes above deleted level
+    levelsHTML.forEach((item, index) => {
+      if (index < levelInd) {
+        [...item.children].forEach(elem => {
+          if (elem.firstElementChild) {
+            statucCubes.push(elem);
+          }
+        });
+      }
+    });
+    // append each static cube above deleted level down.
+    statucCubes.forEach(item => {
+      let rowDown = item.parentNode.nextElementSibling;
+      if (rowDown) {
+        let cubeIndex = Array.from(item.parentNode.children).indexOf(item);
+        let cube = item.firstElementChild;
+        let cubePlace = rowDown.children;
+        cubePlace[cubeIndex].appendChild(cube);
+      }
+    });
+  };
+  const isEndGame = () => {
+    return false;
+  };
+  const addScore = numberOfLvls => {
+    let levelIndex = levelEquivalent.indexOf(numberOfLvls);
+    let scoreToAdd = scoreEquivalent[levelIndex];
+    currentScore += scoreToAdd;
+    return currentScore > highScore ? [currentScore, true] : [currentScore, false];
+  };
+  const updateCurLevel = interval => {
+    curLevel = Math.round((1000 - interval) / 100);
+    return curLevel;
+  };
+  const saveNewHighScore = score => {
+    localStorage.setItem('highScore', score);
+  };
+  const setHighScoreFromStorage = () => {
+    let storage = Number(localStorage.getItem('highScore'));
+    if (storage) {
+      highScore = storage;
+      return storage;
+    }
+    return 0;
+  };
+  const saveGameField = (parent, interval) => {
+    let storage = [];
+    let rows = [...parent.children];
+
+    rows.forEach((row, rowIndex) => {
+      [...row.children].forEach((cell, cellIndex) => {
+        if (cell.firstElementChild) {
+          let color = cell.firstElementChild.firstElementChild.className.slice(-1);
+          let statusClass = cell.firstElementChild.className;
+          storage.push({
+            curPositionIndex,
+            cellIndex,
+            rowIndex,
+            color,
+            statusClass,
+          });
+        }
+      });
+    });
+
+    localStorage.setItem('saveGame', JSON.stringify({ interval, currentScore }));
+    localStorage.setItem('saveFigure', JSON.stringify(currentFigure));
+    localStorage.setItem('savePoint', JSON.stringify(storage));
+  };
+  const saveNextField = parent => {
+    let nextFieldStorage = [];
+    let nextRows = [...parent.children];
+
+    nextRows.forEach((row, rowIndex) => {
+      [...row.children].forEach((cell, cellIndex) => {
+        if (cell.firstElementChild) {
+          nextFieldStorage.push({
+            cellIndex,
+            rowIndex,
+            color: nextFigure.name.slice(-1),
+            statusClass: cell.firstElementChild.className,
+          });
+        }
+      });
+    });
+
+    localStorage.setItem('nextFieldSavePoint', JSON.stringify(nextFieldStorage));
+  };
+  const setSettingsFromSave = () => {
+    // TODO: установить currentPisotionIndex
+    // TODO: устанвоит ьсчет из хранилища
+    // TODO: change level from storage
   };
   return {
     computeCellsAndRows,
@@ -161,6 +273,16 @@ const ModelTetris = (() => {
     isWayAside,
     isRotationPossible,
     countLevelsToErase,
+    deleteLevels,
+    moveLevels,
+    isEndGame,
+    addScore,
+    updateCurLevel,
+    setHighScoreFromStorage,
+    saveNewHighScore,
+    saveGameField,
+    saveNextField,
+    setSettingsFromSave,
   };
 })();
 

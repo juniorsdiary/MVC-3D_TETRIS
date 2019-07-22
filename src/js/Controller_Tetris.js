@@ -24,15 +24,40 @@ const Controller = (() => {
     addEvent();
     initiateGame();
   };
+  const saveGame = () => {
+    window.clearInterval(timer);
+    Model.saveGameField(gameField, interval);
+    Model.saveNextField(nextField);
+  };
+  const resetGame = () => {};
+  const loadGame = () => {
+    let storage = JSON.parse(localStorage.getItem('savePoint'));
+    let nextFieldStorage = JSON.parse(localStorage.getItem('nextFieldSavePoint'));
+    // let curFigure = JSON.parse(localStorage.getItem('saveFigure'));
+    let gameData = JSON.parse(localStorage.getItem('saveGame'));
+
+    let nextFigureInitialCoords = nextFieldStorage.map(item => [item.cellIndex, item.rowIndex]);
+
+    View.renderFigure(nextFigureInitialCoords, nextField, nextFieldStorage[0].color);
+
+    interval = gameData.interval;
+
+    for (let cube of storage) {
+      View.renderFigureFromStorage(gameField, cube);
+    }
+  };
   const defineFigures = () => {
-    figures = Model.chooseFigure();
-    positions = Model.setInitialPosition();
-    curFigure = figures.currentFigure;
-    nextFigure = figures.nextFigure;
-    figureInitialCoords = positions.curInitPosition;
-    nextFigureInitialCoords = positions.nextInitPositions;
-    View.renderFigure(figureInitialCoords, gameField, curFigure.name);
-    View.renderFigure(nextFigureInitialCoords, nextField, nextFigure.name);
+    let endGame = Model.isEndGame();
+    if (!endGame) {
+      figures = Model.chooseFigure();
+      positions = Model.setInitialPosition();
+      curFigure = figures.currentFigure;
+      nextFigure = figures.nextFigure;
+      figureInitialCoords = positions.curInitPosition;
+      nextFigureInitialCoords = positions.nextInitPositions;
+      View.renderFigure(figureInitialCoords, gameField, curFigure.name);
+      View.renderFigure(nextFigureInitialCoords, nextField, nextFigure.name);
+    }
   };
   const moveDown = () => {
     if (!Model.isWayDown(gameField)) {
@@ -41,9 +66,9 @@ const Controller = (() => {
       View.renderFigure(newCoords, gameField, curFigure.name);
     } else {
       View.freezeFigure();
+      isNeedToClearLvl();
       View.clearNextField();
       defineFigures();
-      isNeedToClearLvl();
     }
   };
   const moveHor = step => {
@@ -96,24 +121,41 @@ const Controller = (() => {
     timer = setInterval(() => moveDown(), interval);
   };
   const isNeedToClearLvl = () => {
-    let nodesLevels = document.querySelectorAll('.row');
     let levelsToErase = Model.countLevelsToErase();
     if (levelsToErase.length > 0) {
-      // scoreClass._addScore(index);
-      // game._changeSpeed(index);
-      levelsToErase.forEach(levelIndex => {
-        Array.from(nodesLevels[levelIndex].children).forEach(cell => cell.removeChild(cell.firstElementChild));
-      });
-
+      let curScoreData = Model.addScore(levelsToErase.length);
+      if (curScoreData[1]) {
+        Model.saveNewHighScore(curScoreData[0]);
+      }
+      View.showScore(curScoreData);
+      changeSpeed(levelsToErase.length);
+      Model.deleteLevels();
       while (levelsToErase.length > 0) {
-        // moveLevels(levelsToErase);
+        Model.moveLevels(levelsToErase[0]);
         levelsToErase.shift();
       }
     }
   };
+  const changeSpeed = index => {
+    if (interval !== 200) {
+      interval -= index * 10;
+      window.clearInterval(timer);
+      let curlevel = Model.updateCurLevel(interval);
+      View.showCurrentLevel(curlevel);
+      initiateGame();
+    }
+  };
+  const extractHighScore = () => {
+    let score = Model.setHighScoreFromStorage();
+    View.showHighScore(score);
+  };
   return {
     createFields,
     startGame,
+    extractHighScore,
+    saveGame,
+    resetGame,
+    loadGame,
   };
 })();
 

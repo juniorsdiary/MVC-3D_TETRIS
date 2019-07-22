@@ -7,6 +7,14 @@ const View = (() => {
   const generalClass = 'cube_side';
   let figure = [];
   let nextFigure = [];
+  const showScore = ([newScore, isHigh]) => {
+    if (isHigh) {
+      showCurrentScore(newScore);
+      showHighScore(newScore);
+    } else {
+      showCurrentScore(newScore);
+    }
+  };
   const showCurrentScore = score => {
     scoreEl.innerHTML = score;
   };
@@ -47,6 +55,17 @@ const View = (() => {
       targetSpot.appendChild(cube);
     }
   };
+  const renderFigureFromStorage = (parent, cubeData) => {
+    let cell = parent.children[cubeData.rowIndex].children[cubeData.cellIndex];
+    let cube = document.createElement('div');
+    cube.className = cubeData.statusClass;
+    for (let j = 0; j < sides.length; j++) {
+      let side = document.createElement('div');
+      side.className = `${generalClass} ${sides[j]} ${cubeData.color}`;
+      cube.appendChild(side);
+    }
+    cell.appendChild(cube);
+  };
   const clearFigure = () => {
     figure.forEach(item => item.parentNode.removeChild(item));
     figure = [];
@@ -63,6 +82,7 @@ const View = (() => {
     nextFigure = [];
   };
   return {
+    showScore,
     showCurrentScore,
     showHighScore,
     showCurrentLevel,
@@ -71,6 +91,7 @@ const View = (() => {
     freezeFigure,
     clearFigure,
     clearNextField,
+    renderFigureFromStorage,
   };
 })();
 
