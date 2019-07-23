@@ -190,8 +190,10 @@ const ModelTetris = (() => {
       }
     });
   };
-  const isEndGame = () => {
-    return false;
+  const isEndGame = parent => {
+    return currentFigure.positions[curPositionIndex].some(
+      position => parent.children[position[1]].children[position[0]].firstElementChild
+    );
   };
   const addScore = numberOfLvls => {
     let levelIndex = levelEquivalent.indexOf(numberOfLvls);
@@ -219,22 +221,26 @@ const ModelTetris = (() => {
     let rows = [...parent.children];
 
     rows.forEach((row, rowIndex) => {
-      [...row.children].forEach((cell, cellIndex) => {
-        if (cell.firstElementChild) {
-          let color = cell.firstElementChild.firstElementChild.className.slice(-1);
-          let statusClass = cell.firstElementChild.className;
-          storage.push({
-            curPositionIndex,
-            cellIndex,
-            rowIndex,
-            color,
-            statusClass,
-          });
+      let cells = [...row.children];
+      cells.forEach((cell, cellIndex) => {
+        let cellDOMElem = cell.firstElementChild;
+        if (cellDOMElem) {
+          if (cellDOMElem.classList.contains('staticCube')) {
+            let color = cell.firstElementChild.firstElementChild.className.slice(-1);
+            let statusClass = cell.firstElementChild.className;
+            storage.push({
+              curPositionIndex,
+              cellIndex,
+              rowIndex,
+              color,
+              statusClass,
+            });
+          }
         }
       });
     });
 
-    localStorage.setItem('saveGame', JSON.stringify({ interval, currentScore }));
+    localStorage.setItem('saveGame', JSON.stringify({ interval, currentScore, curLevel, curPositionIndex }));
     localStorage.setItem('saveFigure', JSON.stringify(currentFigure));
     localStorage.setItem('savePoint', JSON.stringify(storage));
   };
@@ -254,13 +260,13 @@ const ModelTetris = (() => {
         }
       });
     });
-
     localStorage.setItem('nextFieldSavePoint', JSON.stringify(nextFieldStorage));
   };
-  const setSettingsFromSave = () => {
-    // TODO: установить currentPisotionIndex
-    // TODO: устанвоит ьсчет из хранилища
-    // TODO: change level from storage
+  const setSettingsFromSave = gameData => ({ curPositionIndex, currentScore, curLevel } = gameData);
+  const setResetSettings = () => {
+    curLevel = 0;
+    currentScore = 0;
+    randomNextNumber = undefined;
   };
   return {
     computeCellsAndRows,
@@ -283,6 +289,7 @@ const ModelTetris = (() => {
     saveGameField,
     saveNextField,
     setSettingsFromSave,
+    setResetSettings,
   };
 })();
 

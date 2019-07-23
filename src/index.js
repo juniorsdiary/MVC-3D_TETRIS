@@ -27,3 +27,7 @@ reset.addEventListener('click', function() {
 lastSave.addEventListener('click', function() {
   Controller.loadGame();
 });
+
+// TODO: исправить старт игры после загрузки сохранения
+// TODO: доделать индикаторва возможности начать игру останвоить загрузить визуальное отображение кнопок
+// TODO:

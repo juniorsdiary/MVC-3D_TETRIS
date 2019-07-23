@@ -81,6 +81,17 @@ const View = (() => {
     nextFigure.forEach(item => item.parentNode.removeChild(item));
     nextFigure = [];
   };
+  const clearGameField = parent => {
+    [...parent.children].forEach(row =>
+      [...row.children].forEach(cell => {
+        let cube = cell.firstElementChild;
+        if (cube) {
+          cube.parentNode.removeChild(cube);
+        }
+      })
+    );
+    figure = [];
+  };
   return {
     showScore,
     showCurrentScore,
@@ -91,6 +102,7 @@ const View = (() => {
     freezeFigure,
     clearFigure,
     clearNextField,
+    clearGameField,
     renderFigureFromStorage,
   };
 })();

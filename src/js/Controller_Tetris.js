@@ -12,51 +12,113 @@ const Controller = (() => {
     nextFigureInitialCoords,
     interval = 1000,
     timer,
-    isACtive = false;
+    isActive = false;
   const createFields = () => {
     const cellsAndRows_1 = Model.computeCellsAndRows(gameField);
     const cellsAndRows_2 = Model.computeCellsAndRows(nextField);
     View.renderField(cellsAndRows_2, nextField);
     View.renderField(cellsAndRows_1, gameField);
   };
+  // responsible for user interactions with game
   const startGame = () => {
     defineFigures();
     addEvent();
     initiateGame();
   };
   const saveGame = () => {
-    window.clearInterval(timer);
+    if (isActive) pause();
+    removeEvent();
     Model.saveGameField(gameField, interval);
     Model.saveNextField(nextField);
   };
-  const resetGame = () => {};
+  const resetGame = () => {
+    removeEvent();
+    if (isActive) pause();
+    interval = 1000;
+    Model.setResetSettings();
+    View.clearNextField();
+    View.clearGameField(gameField);
+    View.showCurrentScore(0);
+    View.showCurrentLevel(0);
+  };
   const loadGame = () => {
+    // load storage data
     let storage = JSON.parse(localStorage.getItem('savePoint'));
-    let nextFieldStorage = JSON.parse(localStorage.getItem('nextFieldSavePoint'));
-    // let curFigure = JSON.parse(localStorage.getItem('saveFigure'));
+    let nextFigureData = JSON.parse(localStorage.getItem('nextFieldSavePoint'));
+    let curFigureData = JSON.parse(localStorage.getItem('saveFigure'));
     let gameData = JSON.parse(localStorage.getItem('saveGame'));
-
-    let nextFigureInitialCoords = nextFieldStorage.map(item => [item.cellIndex, item.rowIndex]);
-
-    View.renderFigure(nextFigureInitialCoords, nextField, nextFieldStorage[0].color);
-
+    // set interval data from storage
     interval = gameData.interval;
-
+    // set rest data from storage to the Model
+    Model.setSettingsFromSave(gameData);
+    // convert position data to the corresponding data for render in dom
+    nextFigureInitialCoords = nextFigureData.map(item => [item.cellIndex, item.rowIndex]);
+    // get current corrds of the figure
+    figureInitialCoords = curFigureData.positions[gameData.curPositionIndex];
+    // render current figure and next figure in the corresponding fields
+    View.renderFigure(figureInitialCoords, gameField, curFigureData.name);
+    View.renderFigure(nextFigureInitialCoords, nextField, nextFigureData[0].color);
+    // render score and level
+    View.showCurrentScore(gameData.currentScore);
+    View.showCurrentLevel(gameData.curLevel);
+    // render all the static cubes in the save point
     for (let cube of storage) {
       View.renderFigureFromStorage(gameField, cube);
     }
   };
+  const pause = () => {
+    if (isActive) {
+      isActive = false;
+      window.clearInterval(timer);
+      removeEvent();
+    } else {
+      addEvent();
+      initiateGame();
+    }
+  };
+  const initiateGame = () => {
+    isActive = true;
+    timer = setInterval(() => moveDown(), interval);
+  };
+  // responsible for moving figure through game field
   const defineFigures = () => {
-    let endGame = Model.isEndGame();
+    figures = Model.chooseFigure();
+    positions = Model.setInitialPosition();
+    let endGame = Model.isEndGame(gameField);
     if (!endGame) {
-      figures = Model.chooseFigure();
-      positions = Model.setInitialPosition();
       curFigure = figures.currentFigure;
       nextFigure = figures.nextFigure;
       figureInitialCoords = positions.curInitPosition;
       nextFigureInitialCoords = positions.nextInitPositions;
       View.renderFigure(figureInitialCoords, gameField, curFigure.name);
       View.renderFigure(nextFigureInitialCoords, nextField, nextFigure.name);
+    } else {
+      pause();
+    }
+  };
+  const addEvent = () => {
+    window.addEventListener('keydown', eventHandler);
+  };
+  const removeEvent = () => {
+    window.addEventListener('keydown', eventHandler);
+  };
+  const eventHandler = e => {
+    switch (e.keyCode) {
+      case 40:
+        moveDown();
+        break;
+      case 37:
+        moveHor(1);
+        break;
+      case 39:
+        moveHor(-1);
+        break;
+      case 38:
+        rotateEvent();
+        break;
+      case 32:
+        pause();
+        break;
     }
   };
   const moveDown = () => {
@@ -87,39 +149,7 @@ const Controller = (() => {
       View.renderFigure(newCoords, gameField, curFigure.name);
     }
   };
-  const pause = () => {
-    if (isACtive) {
-      isACtive = false;
-      window.clearInterval(timer);
-    } else {
-      initiateGame();
-    }
-  };
-  const addEvent = () => {
-    window.addEventListener('keydown', () => {
-      switch (event.keyCode) {
-        case 40:
-          moveDown();
-          break;
-        case 37:
-          moveHor(1);
-          break;
-        case 39:
-          moveHor(-1);
-          break;
-        case 38:
-          rotateEvent();
-          break;
-        case 32:
-          pause();
-          break;
-      }
-    });
-  };
-  const initiateGame = () => {
-    isACtive = true;
-    timer = setInterval(() => moveDown(), interval);
-  };
+  // responsible for changing in game settings
   const isNeedToClearLvl = () => {
     let levelsToErase = Model.countLevelsToErase();
     if (levelsToErase.length > 0) {
