@@ -1,19 +1,18 @@
 import 'whatwg-fetch';
 import './styles/style.scss';
-
 import Controller from './js/Controller_Tetris';
-
-Controller.createFields();
-Controller.extractHighScore();
 
 let saveBtn = document.getElementById('save');
 let startBtn = document.getElementById('start');
 let lastSave = document.getElementById('lastSave');
 let reset = document.getElementById('reset');
 
+Controller.createFields();
+Controller.extractHighScore();
+Controller.checkSavePoint();
+
 saveBtn.addEventListener('click', function() {
   Controller.saveGame();
-  // $$('#lastSave').style.color = 'yellow';
 });
 
 startBtn.addEventListener('click', function() {
@@ -28,6 +27,6 @@ lastSave.addEventListener('click', function() {
   Controller.loadGame();
 });
 
-// TODO: исправить старт игры после загрузки сохранения
-// TODO: доделать индикаторва возможности начать игру останвоить загрузить визуальное отображение кнопок
-// TODO:
+// переключение языков
+// pause event
+// refactor model and controller and devide to meaningful parts
