@@ -1,15 +1,15 @@
-import 'whatwg-fetch';
 import './styles/style.scss';
 import Controller from './js/Controller_Tetris';
+
+Controller.createFields();
+Controller.extractHighScore();
+Controller.checkSavePoint();
 
 let saveBtn = document.getElementById('save');
 let startBtn = document.getElementById('start');
 let lastSave = document.getElementById('lastSave');
 let reset = document.getElementById('reset');
-
-Controller.createFields();
-Controller.extractHighScore();
-Controller.checkSavePoint();
+let changeLng = document.getElementById('changeLang');
 
 saveBtn.addEventListener('click', function() {
   Controller.saveGame();
@@ -27,6 +27,6 @@ lastSave.addEventListener('click', function() {
   Controller.loadGame();
 });
 
-// переключение языков
-// pause event
-// refactor model and controller and devide to meaningful parts
+changeLng.addEventListener('click', function() {
+  Controller.changeLanguage(this.innerHTML);
+});

@@ -1,92 +1,81 @@
 import View from './View_Tetris';
 import Model from './Model_Tetris';
 
-const nextField = document.getElementById('nextFigure');
-const gameField = document.getElementById('back');
-let figures,
-  positions,
-  curFigure,
+let curFigure,
   nextFigure,
-  figureInitialCoords,
-  nextFigureInitialCoords,
+  statciCubes,
+  gameData,
   interval = 1000,
   timer,
   isActive = false,
+  paused = false,
   isLoadedFromStorgae = false,
-  storage,
-  nextFigureData,
-  curFigureData,
-  gameData,
   savePoint = false;
+
 const createFields = () => {
-  const cellsAndRows_1 = Model.computeCellsAndRows(gameField);
-  const cellsAndRows_2 = Model.computeCellsAndRows(nextField);
-  View.renderField(cellsAndRows_2, nextField);
-  View.renderField(cellsAndRows_1, gameField);
+  let gameField = Model.execute('initField', 'game');
+  View.render('field', gameField);
+  let nextField = Model.execute('initField', 'next');
+  View.render('field', nextField);
 };
 // responsible for user interactions with game
 const startGame = () => {
   if (!isActive) {
-    if (!isLoadedFromStorgae) defineFigures();
+    if (!isLoadedFromStorgae && !paused) defineFigures();
     addEvent();
     initiateGame();
-    View.changeStartBtn(true);
+    View.render('start', true);
   }
 };
 const saveGame = () => {
-  if (isActive) pause();
-  removeEvent();
-  Model.saveGameField(gameField, interval);
-  Model.saveNextField(nextField);
-  View.changeLoadBtn(true);
+  if (isActive) {
+    pause();
+    removeEvent();
+    Model.store('saveGameField');
+    Model.store('saveNextField');
+    Model.store('saveGameData', interval);
+    View.render('load', true);
+  }
 };
 const resetGame = () => {
-  // $$('#gameOver').style.display = 'none';
-  removeEvent();
+  View.render('gameOver', 'none');
   if (isActive) pause();
   interval = 1000;
   isLoadedFromStorgae = false;
-  Model.setResetSettings();
-  View.clearNextField();
-  View.clearGameField(gameField);
-  View.showCurrentScore(0);
-  View.showCurrentLevel(0);
+  paused = false;
+  Model.compute('setResetSettings');
+  View.render('clearNext');
+  View.render('clearGame');
+  View.render('score', [0, false]);
+  View.render('level', 0);
 };
 const loadGame = () => {
   if (savePoint) {
-    // set interval data from storage
+    resetGame();
+    checkSavePoint();
     interval = gameData.interval;
-    curFigure = curFigureData;
-    // set rest data from storage to the Model
-    Model.setSettingsFromSave(gameData, curFigureData);
-    // convert position data to the corresponding data for render in dom
-    nextFigureInitialCoords = nextFigureData.map(item => [item.cellIndex, item.rowIndex]);
-    // get current corrds of the figure
-    figureInitialCoords = curFigureData.positions[gameData.curPositionIndex];
-    // render current figure and next figure in the corresponding fields
-    View.renderFigure(figureInitialCoords, gameField, curFigureData.name);
-    View.renderFigure(nextFigureInitialCoords, nextField, nextFigureData[0].color);
-    // render score and level
-    View.showCurrentScore(gameData.currentScore);
-    View.showCurrentLevel(gameData.curLevel);
-    // render all the static cubes in the save point
-    for (let cube of storage) {
-      View.renderFigureFromStorage(gameField, cube);
-    }
-    // switch load indiactor
+    Model.store('setSettingsFromSave', gameData);
+    curFigure = Model.command('getFigure', 'game');
+    nextFigure = Model.command('getFigure', 'next');
+    View.render('figure', curFigure);
+    View.render('figure', nextFigure);
+    View.render('score', [gameData.currentScore, false]);
+    View.render('level', gameData.curLevel);
+    statciCubes.forEach(cube => View.render('figureFromStorage', curFigure.field, cube));
     isLoadedFromStorgae = true;
   }
 };
 const pause = () => {
   if (isActive) {
+    paused = true;
     isActive = false;
     window.clearInterval(timer);
     removeEvent();
-    View.changeStartBtn(false);
+    View.render('start', false);
   } else {
     addEvent();
     initiateGame();
-    View.changeStartBtn(true);
+    View.render('start', true);
   }
 };
 const initiateGame = () => {
@@ -94,31 +83,26 @@ const initiateGame = () => {
   timer = setInterval(() => moveDown(), interval);
 };
 const checkSavePoint = () => {
-  storage = JSON.parse(localStorage.getItem('savePoint'));
-  nextFigureData = JSON.parse(localStorage.getItem('nextFieldSavePoint'));
-  curFigureData = JSON.parse(localStorage.getItem('saveFigure'));
+  Model.command('savePoint');
   gameData = JSON.parse(localStorage.getItem('saveGame'));
-  if (storage && nextFigureData && curFigureData && gameData) {
+  statciCubes = JSON.parse(localStorage.getItem('savePoint'));
+  if (gameData) {
     savePoint = true;
-    View.changeLoadBtn(true);
+    View.render('load', true);
   } else {
-    View.changeLoadBtn(false);
+    View.render('load', false);
   }
 };
 // responsible for moving figure through game field
 const defineFigures = () => {
-  figures = Model.chooseFigure();
-  positions = Model.setInitialPosition();
-  let endGame = Model.isEndGame(gameField);
+  curFigure = Model.command('initFigure', 'game');
+  nextFigure = Model.command('initFigure', 'next');
+  let endGame = Model.command('isEndGame', 'game');
   if (!endGame) {
-    curFigure = figures.currentFigure;
-    nextFigure = figures.nextFigure;
-    figureInitialCoords = positions.curInitPosition;
-    nextFigureInitialCoords = positions.nextInitPositions;
-    View.renderFigure(figureInitialCoords, gameField, curFigure.name);
-    View.renderFigure(nextFigureInitialCoords, nextField, nextFigure.name);
+    View.render('figure', curFigure);
+    View.render('figure', nextFigure);
   } else {
-    // $$('#gameOver').style.display = 'block';
+    View.render('gameOver', 'block');
     pause();
   }
 };
@@ -148,72 +132,75 @@ const eventHandler = e => {
   }
 };
 const moveDown = () => {
-  if (!Model.isWayDown(gameField)) {
-    const newCoords = Model.changeLevel();
-    View.clearFigure();
-    View.renderFigure(newCoords, gameField, curFigure.name);
+  let check = Model.command('isWayDown', 'game');
+  if (!check) {
+    Model.command('down', 'game');
+    View.render('clear');
+    View.render('figure', curFigure);
   } else {
-    View.freezeFigure();
+    View.render('freeze');
     isNeedToClearLvl();
-    View.clearNextField();
+    View.render('clearNext');
     defineFigures();
   }
 };
 const moveHor = step => {
-  let checkPath = Model.isWayAside(gameField, step);
+  let checkPath = Model.command('isWayAside', 'game', step);
   if (checkPath) {
-    const newCoords = Model.changePositinon(step);
-    View.clearFigure();
-    View.renderFigure(newCoords, gameField, curFigure.name);
+    Model.command('sideToSide', 'game', step);
+    View.render('clear');
+    View.render('figure', curFigure);
   }
 };
 const rotateEvent = () => {
-  let checkRotation = Model.isRotationPossible(gameField);
+  let checkRotation = Model.command('iswayAround', 'game');
   if (checkRotation) {
-    const newCoords = Model.rotateFigure();
-    View.clearFigure();
-    View.renderFigure(newCoords, gameField, curFigure.name);
+    Model.command('rotate', 'game');
+    View.render('clear');
+    View.render('figure', curFigure);
   }
 };
 // responsible for changing in game settings
 const isNeedToClearLvl = () => {
-  let levelsToErase = Model.countLevelsToErase();
-  if (levelsToErase.length > 0) {
-    let curScoreData = Model.addScore(levelsToErase.length);
+  let levelsToErase = Model.execute('countLevelsToErase', 'game');
+  if (levelsToErase.length) {
+    interval > 200 ? (interval -= levelsToErase.length * 10) : interval;
+    let curScoreData = Model.compute('addScore', levelsToErase.length);
+    let curlevel = Model.compute('updateCurLevel', interval);
     if (curScoreData[1]) {
-      Model.saveNewHighScore(curScoreData[0]);
+      Model.compute('saveNewHighScore', curScoreData[0]);
     }
-    View.showScore(curScoreData);
-    changeSpeed(levelsToErase.length);
-    Model.deleteLevels();
+
+    View.render('deleteLvls', levelsToErase);
+    View.render('score', curScoreData);
+    View.render('level', curlevel);
+
     while (levelsToErase.length > 0) {
-      Model.moveLevels(levelsToErase[0]);
+      View.render('moveLvls', levelsToErase[0]);
       levelsToErase.shift();
     }
-  }
-};
-const changeSpeed = index => {
-  if (interval !== 200) {
-    interval -= index * 10;
+
     window.clearInterval(timer);
-    let curlevel = Model.updateCurLevel(interval);
-    View.showCurrentLevel(curlevel);
     initiateGame();
   }
 };
 const extractHighScore = () => {
-  let score = Model.setHighScoreFromStorage();
-  View.showHighScore(score);
+  let score = Model.compute('setHighScoreFromStorage');
+  View.render('score', [score, true]);
+};
+const changeLanguage = lang => {
+  View.render('changeLang', lang);
 };
 
 const Controller = {
   createFields,
-  startGame,
   extractHighScore,
+  checkSavePoint,
   saveGame,
+  startGame,
   resetGame,
   loadGame,
-  checkSavePoint,
+  changeLanguage,
 };
 
 export default Controller;

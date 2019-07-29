@@ -1,5 +1,4 @@
-// Model ответственнен за расчет всех поступающих данных от контроллера и действий юзера. Здесь будут располагаться все методы и свойства которые управляют состоянием внутренних данных приложения
-const figures = [
+const figureTemplates = [
   {
     name: 'figure_T',
     positions: [
@@ -66,72 +65,89 @@ const figures = [
 ];
 const scoreEquivalent = [5, 15, 30, 40];
 const levelEquivalent = [1, 2, 3, 4];
-let nodesLevels = document.getElementsByClassName('row'),
-  levelsToErase = [],
-  randomCurrentNumber,
-  randomNextNumber,
-  currentFigure,
-  curPositionIndex,
-  nextFigure,
-  currentScore = 0,
+let currentScore = 0,
   highScore = 0,
-  curLevel = 0;
-const computeCellsAndRows = parent => {
-  return {
-    cells: parseInt(getComputedStyle(parent).width) / 30,
-    rows: parseInt(getComputedStyle(parent).height) / 30,
-  };
+  curLevel = 0,
+  inGameFigures = {},
+  fields = {},
+  nextFigure,
+  curFigure;
+
+function Field(selector) {
+  this.DOMElem = document.getElementById(selector);
+  this.rows = 0;
+  this.cells = 0;
+}
+function Figure(data) {
+  this.name = data.name;
+  this.positions = data.positions;
+  this.currentPositionIndex = 0;
+  this.currentPosition = [];
+  this.field;
+}
+
+// Fields Methods
+const initField = function(selector) {
+  let field = new Field(selector);
+  fields[selector] = field;
+  computeCellsAndRows.call(field);
+  return field;
 };
-const chooseFigure = () => {
-  // get random number
-  randomNextNumber === undefined
-    ? (randomCurrentNumber = Math.floor(Math.random() * 7))
-    : (randomCurrentNumber = randomNextNumber);
-  randomNextNumber = Math.floor(Math.random() * 7);
-  // choose figure from data based on the random number
-  currentFigure = JSON.parse(JSON.stringify(figures[randomCurrentNumber]));
-  nextFigure = JSON.parse(JSON.stringify(figures[randomNextNumber]));
-  return {
-    currentFigure,
-    nextFigure,
-  };
+const getField = function(field) {
+  return fields[field];
 };
-const setInitialPosition = () => {
-  curPositionIndex = 0;
-  return {
-    curInitPosition: currentFigure.positions[curPositionIndex],
-    nextInitPositions: nextFigure.positions[curPositionIndex],
-  };
+const computeCellsAndRows = function() {
+  this.cells = parseInt(getComputedStyle(this.DOMElem).width) / 30;
+  this.rows = parseInt(getComputedStyle(this.DOMElem).height) / 30;
 };
-const changeLevel = () => {
-  currentFigure.positions.forEach(item => item.forEach(elem => elem[1]++));
-  return currentFigure.positions[curPositionIndex];
+const countLevelsToErase = function(selector) {
+  let field = getField(selector);
+  let levelsHTML = [...Array.from(field.DOMElem.children)];
+  let levelsToErase = [];
+  levelsHTML
+    .map(item => Array.from(item.children).every(elem => elem.firstElementChild))
+    .forEach((item, i) => (item ? levelsToErase.push(i) : null));
+  return levelsToErase;
 };
-const changePositinon = step => {
-  currentFigure.positions.forEach(item => item.forEach(elem => (elem[0] += step)));
-  return currentFigure.positions[curPositionIndex];
+// Figures Methods
+const getRandomFigureIndex = () => {
+  return Math.floor(Math.random() * 7);
 };
-const checkCubeCoords = (parent, coords, step) => {
-  let targetRow = parent.children[coords[1]];
-  let targetCell = targetRow.children[coords[0] + step];
-  if (targetCell !== undefined) {
-    if (targetCell.firstElementChild !== null) {
-      let targetCube = targetCell.firstElementChild;
-      return !targetCube.classList.contains('staticCube');
-    } else {
-      return true;
-    }
+const initFigure = field => {
+  let randomIndex = getRandomFigureIndex();
+  let figureData = JSON.parse(JSON.stringify(figureTemplates[randomIndex]));
+  let figure = new Figure(figureData);
+  setInitialPosition.call(figure);
+  if (inGameFigures.next && field !== 'next') {
+    inGameFigures.game = inGameFigures.next;
+    setParent.call(inGameFigures.game, field);
+    inGameFigures.next = figure;
+    return inGameFigures.game;
   } else {
-    return false;
+    setParent.call(figure, field);
+    inGameFigures[field] = figure;
   }
+  return figure;
 };
-const rotateFigure = () => {
-  curPositionIndex <= 2 ? curPositionIndex++ : (curPositionIndex = 0);
-  return currentFigure.positions[curPositionIndex];
+const getFigure = function(selector) {
+  return inGameFigures[selector];
 };
-const isWayDown = parent => {
-  return currentFigure.positions[curPositionIndex].some(item => {
-    let targetRow = parent.children[item[1] + 1];
+const setInitialPosition = function() {
+  this.currentPositionIndex = 0;
+  this.currentPosition = this.positions[this.currentPositionIndex];
+};
+const setParent = function(field) {
+  this.field = getField(field).DOMElem;
+};
+// check possibility to continue game or invoke changing positions
+const isEndGame = function() {
+  return this.currentPosition.some(
+    position => this.field.children[position[1]].children[position[0]].firstElementChild
+  );
+};
+const isWayDown = function() {
+  return this.currentPosition.some(item => {
+    let targetRow = this.field.children[item[1] + 1];
     if (targetRow !== undefined) {
       let targetCell = targetRow.children[item[0]];
       if (targetCell.firstElementChild !== null) {
@@ -144,60 +160,58 @@ const isWayDown = parent => {
     }
   });
 };
-const isWayAside = (parent, step) => {
-  return currentFigure.positions[curPositionIndex].every(item => checkCubeCoords(parent, item, step));
+const isWayAside = function(step) {
+  return this.currentPosition.every(item => checkCubeCoords.apply(this, [item, step]));
 };
-const isRotationPossible = parent => {
-  let coords = currentFigure.positions[curPositionIndex][1];
-  return checkCubeCoords(parent, coords, 1) && checkCubeCoords(parent, coords, -1);
-};
-const countLevelsToErase = () => {
-  let levelsHTML = [...Array.from(nodesLevels)];
-  levelsHTML
-    .map(item => Array.from(item.children).every(elem => elem.firstElementChild))
-    .forEach((item, i) => (item ? levelsToErase.push(i) : null));
-  return levelsToErase;
-};
-const deleteLevels = () => {
-  // delete the full levels from the game field
-  levelsToErase.forEach(levelIndex => {
-    let cellsToErase = Array.from(nodesLevels[levelIndex].children);
-    cellsToErase.forEach(cell => cell.removeChild(cell.firstElementChild));
-  });
-};
-const moveLevels = levelInd => {
-  let statucCubes = [];
-  let levelsHTML = [...Array.from(nodesLevels)];
-  // find all the static cubes above deleted level
-  levelsHTML.forEach((item, index) => {
-    if (index < levelInd) {
-      [...item.children].forEach(elem => {
-        if (elem.firstElementChild) {
-          statucCubes.push(elem);
-        }
-      });
+const checkCubeCoords = function(coords, step) {
+  let targetRow = this.field.children[coords[1]];
+  let targetCell = targetRow.children[coords[0] + step];
+  if (targetCell !== undefined) {
+    if (targetCell.firstElementChild !== null) {
+      let targetCube = targetCell.firstElementChild;
+      return !targetCube.classList.contains('staticCube');
+    } else {
+      return true;
     }
-  });
-  // append each static cube above deleted level down.
-  statucCubes.forEach(item => {
-    let rowDown = item.parentNode.nextElementSibling;
-    if (rowDown) {
-      let cubeIndex = Array.from(item.parentNode.children).indexOf(item);
-      let cube = item.firstElementChild;
-      let cubePlace = rowDown.children;
-      cubePlace[cubeIndex].appendChild(cube);
+  } else {
+    return false;
+  }
+};
+// Change positions
+const iswayAround = function() {
+  let nextPosition = this.currentPositionIndex;
+  nextPosition <= 2 ? nextPosition++ : (nextPosition = 0);
+  return this.positions[nextPosition].every(item => {
+    let row = this.field.children[item[1]];
+    let cell = row.children[item[0]];
+    if (cell !== undefined) {
+      if (cell.firstElementChild !== null) {
+        let cube = cell.firstElementChild;
+        return !cube.classList.contains('staticCube');
+      }
+      return true;
     }
+    return false;
   });
 };
-const isEndGame = parent => {
-  return currentFigure.positions[curPositionIndex].some(
-    position => parent.children[position[1]].children[position[0]].firstElementChild
-  );
+const down = function() {
+  this.positions.forEach(position => position.forEach(cubeCoords => cubeCoords[1]++));
+  return this;
 };
+const sideToSide = function(step) {
+  this.positions.forEach(item => item.forEach(elem => (elem[0] += step)));
+  return this;
+};
+const rotate = function() {
+  this.currentPositionIndex <= 2 ? this.currentPositionIndex++ : (this.currentPositionIndex = 0);
+  this.currentPosition = this.positions[this.currentPositionIndex];
+  return this;
+};
+// Score Methods
 const addScore = numberOfLvls => {
   let levelIndex = levelEquivalent.indexOf(numberOfLvls);
   let scoreToAdd = scoreEquivalent[levelIndex];
-  currentScore += scoreToAdd;
+  currentScore += scoreToAdd || 0;
   return currentScore > highScore ? [currentScore, true] : [currentScore, false];
 };
 const updateCurLevel = interval => {
@@ -205,6 +219,7 @@ const updateCurLevel = interval => {
   return curLevel;
 };
 const saveNewHighScore = score => {
+  highScore = score;
   localStorage.setItem('highScore', score);
 };
 const setHighScoreFromStorage = () => {
@@ -215,9 +230,15 @@ const setHighScoreFromStorage = () => {
   }
   return 0;
 };
-const saveGameField = (parent, interval) => {
+const setResetSettings = () => {
+  curLevel = 0;
+  currentScore = 0;
+};
+// Storage methods
+const saveGameField = () => {
   let storage = [];
-  let rows = [...parent.children];
+  let saveState = getFigure('game');
+  let rows = [...saveState.field.children];
 
   rows.forEach((row, rowIndex) => {
     let cells = [...row.children];
@@ -228,7 +249,6 @@ const saveGameField = (parent, interval) => {
           let color = cell.firstElementChild.firstElementChild.className.slice(-1);
           let statusClass = cell.firstElementChild.className;
           storage.push({
-            curPositionIndex,
             cellIndex,
             rowIndex,
             color,
@@ -239,59 +259,79 @@ const saveGameField = (parent, interval) => {
     });
   });
 
-  localStorage.setItem('saveGame', JSON.stringify({ interval, currentScore, curLevel, curPositionIndex }));
-  localStorage.setItem('saveFigure', JSON.stringify(currentFigure));
+  localStorage.setItem('saveFigure', JSON.stringify(saveState));
   localStorage.setItem('savePoint', JSON.stringify(storage));
 };
-const saveNextField = parent => {
-  let nextFieldStorage = [];
-  let nextRows = [...parent.children];
-
-  nextRows.forEach((row, rowIndex) => {
-    [...row.children].forEach((cell, cellIndex) => {
-      if (cell.firstElementChild) {
-        nextFieldStorage.push({
-          cellIndex,
-          rowIndex,
-          color: nextFigure.name.slice(-1),
-          statusClass: cell.firstElementChild.className,
-        });
-      }
-    });
-  });
-  localStorage.setItem('nextFieldSavePoint', JSON.stringify(nextFieldStorage));
+const saveNextField = () => {
+  let saveState = getFigure('next');
+  localStorage.setItem('nextFieldSavePoint', JSON.stringify(saveState));
 };
-const setSettingsFromSave = (gameData, curFigure) => (
-  (currentFigure = curFigure), ({ curPositionIndex, currentScore, curLevel } = gameData)
-);
-const setResetSettings = () => {
-  curLevel = 0;
-  currentScore = 0;
-  randomNextNumber = undefined;
+const saveGameData = interval => {
+  localStorage.setItem('saveGame', JSON.stringify({ interval, currentScore, curLevel }));
+};
+const setSettingsFromSave = gameData => {
+  inGameFigures.next = JSON.parse(JSON.stringify(nextFigure));
+  inGameFigures.game = JSON.parse(JSON.stringify(curFigure));
+  ({ currentScore, curLevel } = gameData);
+  setParent.call(inGameFigures.game, 'game');
+  setParent.call(inGameFigures.next, 'next');
+  setInitialPosition.call(inGameFigures.game, 'game');
+  setInitialPosition.call(inGameFigures.next, 'next');
+};
+const savePoint = () => {
+  nextFigure = JSON.parse(localStorage.getItem('nextFieldSavePoint'));
+  curFigure = JSON.parse(localStorage.getItem('saveFigure'));
+};
+// Group Methods
+const figureMethods = {
+  initFigure,
+  getFigure,
+  isEndGame,
+  isWayDown,
+  isWayAside,
+  iswayAround,
+  down,
+  sideToSide,
+  rotate,
+  savePoint,
+};
+const fieldMethods = {
+  initField,
+  countLevelsToErase,
+};
+const scoreMethods = {
+  addScore,
+  updateCurLevel,
+  saveNewHighScore,
+  setHighScoreFromStorage,
+  setResetSettings,
+};
+const storageMethods = {
+  saveGameField,
+  saveNextField,
+  saveGameData,
+  setSettingsFromSave,
+};
+// Command interface for Controller
+const compute = function(cmd, ...args) {
+  return scoreMethods[cmd](...args);
+};
+const command = function(cmd, ...args) {
+  let figure = getFigure(...args);
+  return figureMethods[cmd].apply(figure, args.slice(-1));
+};
+const execute = function(cmd, ...args) {
+  return fieldMethods[cmd](...args);
+};
+const store = function(cmd, ...args) {
+  return storageMethods[cmd](...args);
 };
 
 const Model = {
-  computeCellsAndRows,
-  chooseFigure,
-  setInitialPosition,
-  changeLevel,
-  changePositinon,
-  rotateFigure,
-  isWayDown,
-  isWayAside,
-  isRotationPossible,
-  countLevelsToErase,
-  deleteLevels,
-  moveLevels,
-  isEndGame,
-  addScore,
-  updateCurLevel,
-  setHighScoreFromStorage,
-  saveNewHighScore,
-  saveGameField,
-  saveNextField,
-  setSettingsFromSave,
-  setResetSettings,
+  execute,
+  command,
+  compute,
+  store,
 };
 
 export default Model;

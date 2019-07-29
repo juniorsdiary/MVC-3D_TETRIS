@@ -4,7 +4,7 @@
 
 * {
   font-family: 'Press Start 2P', cursive;
-  font-size: 13px;
+  font-size: 0.85em;
 }
 body {
   background: rgb(51, 80, 16);
@@ -139,6 +139,7 @@ body {
 
 .score {
   display: flex;
+  margin: 10px 0;
 }
 
 .containerInfo {
@@ -194,11 +195,11 @@ body {
 }
 
 .infoData p {
-  font-size: 15px;
+  font-size: 1em;
 }
 
 .menu p, #start {
-  font-size: 20px;
+  font-size: 1em;
   cursor: pointer;
 }
 

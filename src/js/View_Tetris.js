@@ -1,31 +1,72 @@
-const sides = ['cube_side', 'cube_bottom', 'cube_top', 'cube_front', 'cube_back', 'cube_left', 'cube_right'];
 // View is responsible for representing all the data of the application and react to the changes of the state. Here we are difining all the methods which will show all the messages and figures
+const sides = ['cube_side', 'cube_bottom', 'cube_top', 'cube_front', 'cube_back', 'cube_left', 'cube_right'];
+const generalClass = 'cube_side';
+const ids = [
+  'textScore',
+  'texthighScore',
+  'textLevel',
+  'nextTitle',
+  'reset',
+  'start',
+  'save',
+  'lastSave',
+  'changeLang',
+  'rotate',
+  'left',
+  'right',
+  'down',
+  'space',
+  'gameOver',
+];
+const languages = {
+  RU: [
+    'Счет:',
+    'Рекорд:',
+    'Уровень:',
+    'Следующая фигура',
+    'Сброс',
+    'Начать игру',
+    'Сохранить',
+    'Загрузить',
+    'EN',
+    ' - Вращение',
+    ' - Сдвинуть в лево',
+    ' - Сдвинуть в право',
+    ' - Сдвинуть в низ',
+    'Пробел - пауза',
+    'Конец Игры',
+  ],
+  EN: [
+    'Score:',
+    'High Score:',
+    'Level:',
+    'Next Figure',
+    'Reset',
+    'Start',
+    'Save',
+    'Load',
+    'RU',
+    ' - rotate',
+    ' - move left',
+    ' - move right',
+    ' - move down',
+    'space - pause',
+    'Game Over',
+  ],
+};
+
+let figureData = [];
+let nextFigure = [];
+
+let nodesLevels = document.getElementsByClassName('row');
 const scoreEl = document.getElementById('score');
 const highScoreEl = document.getElementById('highScore');
 const levelEl = document.getElementById('level');
 const startBtn = document.getElementById('start');
 const loadBtn = document.getElementById('lastSave');
-const generalClass = 'cube_side';
-let figure = [];
-let nextFigure = [];
-const showScore = ([newScore, isHigh]) => {
-  if (isHigh) {
-    showCurrentScore(newScore);
-    showHighScore(newScore);
-  } else {
-    showCurrentScore(newScore);
-  }
-};
-const showCurrentScore = score => {
-  scoreEl.innerHTML = score;
-};
-const showHighScore = highScore => {
-  highScoreEl.innerHTML = highScore;
-};
-const showCurrentLevel = level => {
-  levelEl.innerHTML = level;
-};
-const renderField = (data, parentEl) => {
+const gameOverTitle = document.getElementById('gameOver');
+
+const field = data => {
   for (let i = 0; i < data.rows; i++) {
     let row = document.createElement('div');
     row.classList.add('row');
@@ -38,52 +79,60 @@ const renderField = (data, parentEl) => {
         cell.setAttribute('data-border', 'border');
       }
     }
-    parentEl.appendChild(row);
+    data.DOMElem.appendChild(row);
   }
 };
-const renderFigure = (coords, parent, figureName) => {
-  for (let i in coords) {
+const figure = data => {
+  let coords = data.currentPosition;
+  let parent = data.field;
+  let name = data.name;
+  coords.forEach(cubeCoords => {
     let cube = document.createElement('div');
     cube.classList.add('cube');
     cube.classList.add('activeCube');
-    for (let j = 0; j < sides.length; j++) {
+
+    sides.forEach(sideClass => {
       let side = document.createElement('div');
-      side.className = `${generalClass} ${sides[j]} ${figureName.substr(-1)}`;
+      side.className = `${generalClass} ${sideClass} ${name.substr(-1)}`;
       cube.appendChild(side);
-    }
-    let targetSpot = parent.children[coords[i][1]].children[coords[i][0]];
-    parent.getAttribute('id') === 'back' ? figure.push(cube) : nextFigure.push(cube);
+    });
+
+    let targetSpot = parent.children[cubeCoords[1]].children[cubeCoords[0]];
+    parent.getAttribute('id') === 'game' ? figureData.push(cube) : nextFigure.push(cube);
     targetSpot.appendChild(cube);
+  });
+};
+const score = ([newScore, isHigh]) => {
+  if (isHigh) {
+    showCurrentScore(newScore);
+    showHighScore(newScore);
+  } else {
+    showCurrentScore(newScore);
   }
 };
-const renderFigureFromStorage = (parent, cubeData) => {
+const level = level => {
+  levelEl.innerHTML = level;
+};
+const figureFromStorage = (parent, cubeData) => {
   let cell = parent.children[cubeData.rowIndex].children[cubeData.cellIndex];
   let cube = document.createElement('div');
   cube.className = cubeData.statusClass;
-  for (let j = 0; j < sides.length; j++) {
+
+  sides.forEach(sideClass => {
     let side = document.createElement('div');
-    side.className = `${generalClass} ${sides[j]} ${cubeData.color}`;
+    side.className = `${generalClass} ${sideClass} ${cubeData.color}`;
     cube.appendChild(side);
-  }
+  });
+
   cell.appendChild(cube);
 };
-const clearFigure = () => {
-  figure.forEach(item => item.parentNode.removeChild(item));
-  figure = [];
-};
-const freezeFigure = () => {
-  figure.map(item => {
-    item.classList.remove('activeCube');
-    item.classList.add('staticCube');
-  });
-  figure = [];
-};
-const clearNextField = () => {
+const clearNext = () => {
   nextFigure.forEach(item => item.parentNode.removeChild(item));
   nextFigure = [];
 };
-const clearGameField = parent => {
-  [...parent.children].forEach(row =>
+const clearGame = () => {
+  let field = document.getElementById('game');
+  [...field.children].forEach(row =>
     [...row.children].forEach(cell => {
       let cube = cell.firstElementChild;
       if (cube) {
@@ -91,29 +140,94 @@ const clearGameField = parent => {
       }
     })
   );
-  figure = [];
+  figureData = [];
 };
-const changeStartBtn = active => {
+const start = active => {
   startBtn.style.color = active ? 'grey' : 'yellow';
 };
-const changeLoadBtn = active => {
+const load = active => {
   loadBtn.style.color = active ? 'yellow' : 'grey';
 };
-
-const View = {
-  showScore,
-  showCurrentScore,
-  showHighScore,
-  showCurrentLevel,
-  renderField,
-  renderFigure,
-  freezeFigure,
-  clearFigure,
-  clearNextField,
-  clearGameField,
-  renderFigureFromStorage,
-  changeStartBtn,
-  changeLoadBtn,
+const clear = () => {
+  figureData.forEach(item => item.parentNode.removeChild(item));
+  figureData = [];
 };
+const freeze = () => {
+  figureData.map(item => {
+    item.classList.remove('activeCube');
+    item.classList.add('staticCube');
+  });
+  figureData = [];
+};
+const deleteLvls = levelsToErase => {
+  levelsToErase.forEach(levelIndex => {
+    let cellsToErase = Array.from(nodesLevels[levelIndex].children);
+    cellsToErase.forEach(cell => cell.removeChild(cell.firstElementChild));
+  });
+};
+const changeLang = lang => {
+  for (let value in ids) {
+    let element = document.getElementById(ids[value]);
+    element.lastChild.textContent = languages[lang][value];
+  }
+};
+const moveLvls = levelInd => {
+  let statucCubes = [];
+  let levelsHTML = [...Array.from(nodesLevels)];
+  // find all the static cubes above deleted level
+  levelsHTML.forEach((item, index) => {
+    if (index < levelInd) {
+      [...item.children].forEach(elem => {
+        if (elem.firstElementChild) {
+          statucCubes.push(elem);
+        }
+      });
+    }
+  });
+  // append each static cube above deleted level down.
+  statucCubes.forEach(item => {
+    let rowDown = item.parentNode.nextElementSibling;
+    if (rowDown) {
+      let cubeIndex = Array.from(item.parentNode.children).indexOf(item);
+      let cube = item.firstElementChild;
+      let cubePlace = rowDown.children;
+      cubePlace[cubeIndex].appendChild(cube);
+    }
+  });
+};
+const gameOver = value => {
+  gameOverTitle.style.display = value;
+};
+
+const showCurrentScore = score => {
+  scoreEl.innerHTML = score;
+};
+const showHighScore = highScore => {
+  highScoreEl.innerHTML = highScore;
+};
+
+const methods = {
+  field,
+  figure,
+  figureFromStorage,
+  start,
+  load,
+  clearNext,
+  clearGame,
+  score,
+  level,
+  freeze,
+  clear,
+  deleteLvls,
+  moveLvls,
+  changeLang,
+  gameOver,
+};
+
+const render = function(cmd, ...args) {
+  return methods[cmd](...args);
+};
+
+const View = { render };
 
 export default View;
