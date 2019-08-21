@@ -10,7 +10,7 @@
     "deploy": "gh-pages -d build",
     "lint": "eslint --debug src/**/*.js --fix"
   },
-  "author": "",
+  "author": "Vladislav Evstigneev",
   "license": "ISC",
   "devDependencies": {
     "@babel/cli": "^7.4.4",
