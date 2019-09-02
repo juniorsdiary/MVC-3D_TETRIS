@@ -104,9 +104,7 @@ const countLevelsToErase = function(selector) {
   let field = getField(selector);
   let levelsHTML = [...Array.from(field.DOMElem.children)];
   let levelsToErase = [];
-  levelsHTML
-    .map(item => Array.from(item.children).every(elem => elem.firstElementChild))
-    .forEach((item, i) => (item ? levelsToErase.push(i) : null));
+  levelsHTML.map(item => Array.from(item.children).every(elem => elem.firstElementChild)).forEach((item, i) => (item ? levelsToErase.push(i) : null));
   return levelsToErase;
 };
 // Figures Methods
@@ -141,9 +139,7 @@ const setParent = function(field) {
 };
 // check possibility to continue game or invoke changing positions
 const isEndGame = function() {
-  return this.currentPosition.some(
-    position => this.field.children[position[1]].children[position[0]].firstElementChild
-  );
+  return this.currentPosition.some(position => this.field.children[position[1]].children[position[0]].firstElementChild);
 };
 const isWayDown = function() {
   return this.currentPosition.some(item => {

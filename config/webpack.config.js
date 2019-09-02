@@ -1,5 +1,12 @@
+const paths = require('./paths');
 module.exports = {
-  entry: ['@babel/polyfill', './src/index.js'],
+  entry: ['@babel/polyfill', paths.appIndex],
+  resolve: {
+    alias: {
+      Assets: `${paths.appAssets}`,
+      'react-dom': '@hot-loader/react-dom',
+    },
+  },
   module: {
     rules: [
       {
@@ -7,15 +14,11 @@ module.exports = {
         use: ['html-loader'],
       },
       {
-        test: /\.js$/,
+        test: /\.js|jsx$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
         },
-      },
-      {
-        test: /\.pug$/,
-        use: ['pug-loader'],
       },
       {
         test: /\.(svg|png|jpg|jpeg|gif)$/,
@@ -23,7 +26,7 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
-              name: '[name].[hash].[ext]',
+              name: '[name].[ext]',
               outputPath: 'imgs',
             },
           },
@@ -39,12 +42,12 @@ module.exports = {
         ],
       },
       {
-        test: /\.(otf|woff|woff2)$/,
+        test: /\.(otf|woff|woff2|ttf|eot)$/,
         use: {
           loader: 'file-loader',
           options: {
-            name: '[name].[ext]',
-            outputPath: 'fonts/',
+            name: '[name].[hash].[ext]',
+            outputPath: 'fonts',
           },
         },
       },
