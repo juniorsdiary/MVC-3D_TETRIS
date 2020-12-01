@@ -15,46 +15,31 @@
         <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
         <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
       </path>
-      <path>
-        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="GROUP_NODE:dependabot" type="e8cecc67:BranchNodeDescriptor" />
-      </path>
-      <path>
-        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="GROUP_NODE:dependabot" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="GROUP_NODE:npm_and_yarn" type="e8cecc67:BranchNodeDescriptor" />
-      </path>
     </expand>
     <select />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c66405e3-d133-4ee3-87c0-ca3a4cf5f739" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.eslintrc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/js/const.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/js/interfaces.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/js/utils/ControlButton.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tslint.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.babelrc" beforeDir="false" afterPath="$PROJECT_DIR$/.babelrc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.eslintrc.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.prettierrc.js" beforeDir="false" afterPath="$PROJECT_DIR$/.prettierrc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/paths.js" beforeDir="false" afterPath="$PROJECT_DIR$/config/paths.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/postcss.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/config/postcss.config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/webpack.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/config/webpack.config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/webpack.dev.js" beforeDir="false" afterPath="$PROJECT_DIR$/config/webpack.dev.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/AbstractField.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/AbstractFigure.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/Field_Tetris.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/Figure.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/const/BUTTONS_DATA.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/const/BUTTON_TYPES.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/const/COMMON_CONST.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/const/FIGURES_TEMPLATES.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/const/RENDER_FUNCTIONS.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/utils/getRandomFigureIndex.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/js/Controller_Tetris.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/js/Controller_Tetris.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/js/Model_Tetris.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/js/Model_Tetris.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/js/View_Tetris.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/js/View_Tetris.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/styles/_default.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/_default.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/styles/style.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/style.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/js/Controller_Tetris.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/js/Controller_Tetris.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/js/Model_Tetris.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/js/Model_Tetris.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/js/View_Tetris.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/js/View_Tetris.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/js/const.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/js/interfaces.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/js/interfaces.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,15 +60,18 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../novinexus" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../ForaSoft/novinexus" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.stylelint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
     <property name="node.js.path.for.package.stylelint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.stylelint" value="$PROJECT_DIR$/node_modules/stylelint" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="prettierjs.PrettierConfiguration.Package" value="$PROJECT_DIR$/node_modules/prettier" />
+    <property name="ts.external.directory.path" value="$PROJECT_DIR$/node_modules/typescript/lib" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -100,6 +88,10 @@
       <workItem from="1603649599799" duration="544000" />
       <workItem from="1603650182564" duration="508000" />
       <workItem from="1603687852281" duration="265000" />
+      <workItem from="1606748511308" duration="2278000" />
+      <workItem from="1606800412826" duration="1000" />
+      <workItem from="1606805543082" duration="3000" />
+      <workItem from="1606815198577" duration="6665000" />
     </task>
     <servers />
   </component>
@@ -117,16 +109,6 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="776" y="310" width="424" height="484" key="FileChooserDialogImpl" timestamp="1603688113383">
-      <screen x="67" y="27" width="1853" height="1053" />
-    </state>
-    <state x="776" y="310" width="424" height="484" key="FileChooserDialogImpl/67.27.1853.1053@67.27.1853.1053" timestamp="1603688113383" />
-    <state x="571" y="149" width="834" height="807" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1603551364553">
-      <screen x="67" y="27" width="1853" height="1053" />
-    </state>
-    <state x="571" y="149" width="834" height="807" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/67.27.1853.1053@67.27.1853.1053" timestamp="1603551364553" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

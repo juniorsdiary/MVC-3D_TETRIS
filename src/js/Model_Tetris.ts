@@ -1,68 +1,6 @@
-// const figureTemplates = [
-//   {
-//     name: 'figure_T',
-//     positions: [
-//       [[0, 1], [1, 1], [2, 1], [1, 2]],
-//       [[1, 0], [1, 1], [1, 2], [2, 1]],
-//       [[0, 1], [1, 1], [2, 1], [1, 0]],
-//       [[1, 0], [1, 1], [1, 2], [0, 1]],
-//     ],
-//   },
-//   {
-//     name: 'figure_Q',
-//     positions: [
-//       [[1, 0], [0, 1], [1, 1], [0, 0]],
-//       [[1, 0], [0, 1], [1, 1], [0, 0]],
-//       [[1, 0], [0, 1], [1, 1], [0, 0]],
-//       [[1, 0], [0, 1], [1, 1], [0, 0]],
-//     ],
-//   },
-//   {
-//     name: 'figure_Z',
-//     positions: [
-//       [[0, 1], [1, 1], [1, 0], [2, 0]],
-//       [[0, 0], [1, 1], [0, 1], [1, 2]],
-//       [[0, 1], [1, 1], [1, 0], [2, 0]],
-//       [[0, 0], [1, 1], [0, 1], [1, 2]],
-//     ],
-//   },
-//   {
-//     name: 'figure_S',
-//     positions: [
-//       [[0, 0], [1, 1], [1, 0], [2, 1]],
-//       [[1, 0], [1, 1], [0, 1], [0, 2]],
-//       [[0, 0], [1, 1], [1, 0], [2, 1]],
-//       [[1, 0], [1, 1], [0, 1], [0, 2]],
-//     ],
-//   },
-//   {
-//     name: 'figure_J',
-//     positions: [
-//       [[1, 0], [1, 1], [1, 2], [2, 2]],
-//       [[0, 2], [1, 2], [2, 2], [2, 1]],
-//       [[2, 0], [2, 1], [2, 2], [1, 0]],
-//       [[0, 1], [1, 0], [0, 0], [2, 0]],
-//     ],
-//   },
-//   {
-//     name: 'figure_L',
-//     positions: [
-//       [[1, 0], [1, 1], [1, 2], [0, 2]],
-//       [[0, 1], [1, 1], [2, 1], [2, 2]],
-//       [[1, 0], [1, 1], [1, 2], [2, 0]],
-//       [[0, 1], [1, 1], [0, 0], [2, 1]],
-//     ],
-//   },
-//   {
-//     name: 'figure_I',
-//     positions: [
-//       [[1, 0], [1, 1], [1, 2], [1, 3]],
-//       [[0, 1], [1, 1], [2, 1], [3, 1]],
-//       [[1, 0], [1, 1], [1, 2], [1, 3]],
-//       [[0, 1], [1, 1], [2, 1], [3, 1]],
-//     ],
-//   },
-// ];
+import { IField, IFigure, IModel } from './interfaces';
+import { FIGURES_TEMPLATES } from './const/FIGURES_TEMPLATES';
+
 // const scoreEquivalent = [5, 15, 30, 40];
 // const levelEquivalent = [1, 2, 3, 4];
 // let currentScore = 0,
@@ -331,3 +269,102 @@
 // };
 //
 // export default Model;
+import { IView } from './interfaces';
+import Figure from './Figure';
+import { RENDER_FUNCTIONS } from './const/RENDER_FUNCTIONS';
+import { getRandomFigureIndex } from './utils/getRandomFigureIndex';
+
+class Model implements IModel {
+  view: IView;
+  isActive: boolean;
+  curFigure: any;
+  nextFigure: any;
+
+  constructor(private initialData: any) {
+    this.view = initialData.view;
+    this.isActive = false;
+  }
+
+  initiate = (): void => {
+    this.view.initiateViews();
+    if (!this.isActive) {
+      // if (!isLoadedFromStorgae && !paused) defineFigures();
+      this.defineFigures();
+      // initiateGame();
+      // View.render('start', true);
+    }
+    return;
+  }
+
+  handleUserEvent = (e: KeyboardEvent) => {
+    switch (e.code) {
+      case 'ArrowDown':
+        this.moveDown();
+        break;
+      case 'ArrowRight':
+        this.moveHor(1);
+        break;
+      case 'ArrowLeft':
+        this.moveHor(-1);
+        break;
+      case 'ArrowUp':
+        this.rotateEvent();
+        break;
+      case 'Space':
+        this.pause();
+        break;
+    }
+  }
+
+  moveDown = () => {
+    return
+  }
+
+  moveHor = (value: number) => {
+    console.log(value);
+    return
+  }
+
+  rotateEvent = () => {
+    return
+  }
+
+  pause = () => {
+    return
+  }
+
+  defineFigures = (): void => {
+    this.curFigure = this.initFigure(this.view.gameField);
+    this.nextFigure = this.initFigure(this.view.nextField);
+    const endGame = this.isEndGame();
+    if (!endGame) {
+      this.view.render({
+        key: RENDER_FUNCTIONS.FIGURE,
+        data: { figure: this.curFigure }
+      });
+      this.view.render({
+        key: RENDER_FUNCTIONS.FIGURE,
+        data: { figure: this.nextFigure }
+      });
+    } else {
+      this.view.render({
+        key: 'gameOver',
+        data: 'block'
+      });
+      this.pause();
+    }
+  }
+
+  initFigure = (field: IField): IFigure => {
+    const randomIndex = getRandomFigureIndex();
+    const figureData = JSON.parse(JSON.stringify(FIGURES_TEMPLATES[randomIndex]));
+    const figure = new Figure({ ...figureData, field });
+    figure.setInitialPosition();
+    return figure;
+  }
+  isEndGame = (): boolean => {
+    return false;
+  }
+}
+
+export default Model;

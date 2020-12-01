@@ -207,24 +207,35 @@
 //
 // Controller.extractHighScore();
 // Controller.checkSavePoint();
-import { AddControlType, IControlsCollection } from "./interfaces";
+import { AddControlType, IControlsCollection, IButtonData, IModel, IControllerInitialData  } from './interfaces';
 import { ControlButton } from './utils/ControlButton';
-import { BUTTON_TYPES } from "./const";
+import { BUTTON_TYPES } from './const/BUTTON_TYPES';
 
 class TetrisGame {
   controls: IControlsCollection;
+  buttonsData: IButtonData[];
+  model: IModel;
 
-  constructor() {
+  constructor(private initialData: IControllerInitialData) {
     this.controls = {};
+    this.buttonsData = initialData.buttonsData;
+    this.model = initialData.model
   }
 
   initiateGame() {
-    this.createFields();
+    this.buttonsData.forEach(this.addControlButtonToCollection.bind(this));
+    this.model.initiate();
+    this.addEvent();
   }
 
-  private createFields() {
-
+  addEvent() {
+    window.addEventListener('keydown', this.model.handleUserEvent);
   }
+
+  removeEvent() {
+    window.removeEventListener('keydown', this.model.handleUserEvent);
+  }
+
   private addControlButtonToCollection(data: AddControlType) {
     const newControlButton = new ControlButton({
       ...data,
@@ -251,25 +262,25 @@ class TetrisGame {
   }
 
   private saveGame(data: any) {
+    console.log('saveGame', data);
     return;
   }
   private startGame(data: any) {
+    console.log('startGame', data);
     return;
   }
   private loadLastGame(data: any) {
+    console.log('loadLastGame', data);
     return;
   }
   private changeLanguage(data: any) {
+    console.log('changeLanguage', data);
     return;
   }
   private resetGame(data: any) {
+    console.log('resetGame', data);
     return;
-  }
-
-  addControlButton(addControlData: AddControlType) {
-    this.addControlButtonToCollection(addControlData);
-    return this;
   }
 }
 
-export default new TetrisGame();
+export default TetrisGame;

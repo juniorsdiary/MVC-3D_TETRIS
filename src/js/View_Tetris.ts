@@ -1,6 +1,5 @@
 // // View is responsible for representing all the data of the application and react to the changes of the state. Here we are difining all the methods which will show all the messages and figures
-// const sides = ['cube_side', 'cube_bottom', 'cube_top', 'cube_front', 'cube_back', 'cube_left', 'cube_right'];
-// const generalClass = 'cube_side';
+
 // const ids = [
 //   'textScore',
 //   'texthighScore',
@@ -229,5 +228,100 @@
 // };
 //
 // const View = { render };
-//
-// export default View;
+
+import { IView, IRenderPayload, IRenderField, IRenderFigure } from './interfaces';
+import { RENDER_FUNCTIONS } from './const/RENDER_FUNCTIONS';
+import Field from './Field_Tetris';
+
+const sides = ['cube_side', 'cube_bottom', 'cube_top', 'cube_front', 'cube_back', 'cube_left', 'cube_right'];
+const generalClass = 'cube_side';
+
+class View implements IView {
+  gameField: Field;
+  nextField: Field;
+  figureData: any[];
+  nextFigure: any[];
+
+  constructor(private initialData: any) {
+    this.gameField = new Field({
+      selector: initialData.gameField,
+      squareValue: initialData.squareValue
+    });
+    this.nextField = new Field({
+      selector: initialData.nextField,
+      squareValue: initialData.squareValue
+    });
+    this.figureData = [];
+    this.nextFigure = [];
+  }
+
+  initiateViews = () => {
+    this.gameField.createField();
+    this.render({
+      key: RENDER_FUNCTIONS.FIELD,
+      data: { field: this.gameField }
+    });
+    this.render({
+      key: RENDER_FUNCTIONS.FIELD,
+      data: { field: this.nextField }
+    });
+    this.nextField.createField();
+    return;
+  }
+
+  renderField = ({ field }: IRenderField) => {
+    for (let i = 0; i < field.rows; i++) {
+      const row = document.createElement('div');
+      row.classList.add('row');
+
+      for (let j = 0; j < field.cells; j++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        row.appendChild(cell);
+        if (j === 0 || j === 9) {
+          cell.setAttribute('data-border', 'border');
+        }
+      }
+      if (field.element) field.element.appendChild(row);
+    }
+  }
+
+  renderFigure = ({ figure }: IRenderFigure) => {
+    console.log(figure.field);
+    const coords = figure.currentPosition;
+    const parent = figure.field.element;
+    const idSelector = figure.field.selector;
+    const name = figure.name;
+    coords.forEach(cubeCoords => {
+      const cube = document.createElement('div');
+      cube.classList.add('cube');
+      cube.classList.add('activeCube');
+
+      sides.forEach(sideClass => {
+        const side = document.createElement('div');
+        side.className = `${generalClass} ${sideClass} ${name.substr(-1)}`;
+        cube.appendChild(side);
+      });
+
+      const targetSpot = parent.children[cubeCoords[1]].children[cubeCoords[0]];
+
+      if (idSelector === 'game') {
+        this.figureData.push(cube);
+      } else {
+        this.nextFigure.push(cube);
+      }
+      targetSpot.appendChild(cube);
+    });
+  }
+
+  render = ({key, data}: IRenderPayload) => {
+    switch (key) {
+      case RENDER_FUNCTIONS.FIELD:
+        return this.renderField(data);
+      case RENDER_FUNCTIONS.FIGURE:
+        return this.renderFigure(data);
+    }
+  }
+}
+
+export default View;

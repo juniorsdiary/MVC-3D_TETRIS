@@ -1,0 +1,1 @@
+export const FIGURES_NUMBER = 7;
