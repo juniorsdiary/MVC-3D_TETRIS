@@ -20,26 +20,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c66405e3-d133-4ee3-87c0-ca3a4cf5f739" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/js/AbstractField.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/js/AbstractFigure.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/js/Field_Tetris.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/js/Figure.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/js/const/BUTTONS_DATA.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/js/const/BUTTON_TYPES.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/js/const/COMMON_CONST.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/js/const/FIGURES_TEMPLATES.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/js/const/RENDER_FUNCTIONS.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/js/utils/getRandomFigureIndex.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/js/Controller_Tetris.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/js/Controller_Tetris.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/js/Model_Tetris.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/js/Model_Tetris.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/js/View_Tetris.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/js/View_Tetris.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/js/const.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/js/interfaces.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/js/interfaces.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,7 +74,7 @@
       <workItem from="1606748511308" duration="2278000" />
       <workItem from="1606800412826" duration="1000" />
       <workItem from="1606805543082" duration="3000" />
-      <workItem from="1606815198577" duration="6665000" />
+      <workItem from="1606815198577" duration="7407000" />
     </task>
     <servers />
   </component>

@@ -287,11 +287,11 @@ class View implements IView {
   }
 
   renderFigure = ({ figure }: IRenderFigure) => {
-    console.log(figure.field);
     const coords = figure.currentPosition;
     const parent = figure.field.element;
     const idSelector = figure.field.selector;
     const name = figure.name;
+
     coords.forEach(cubeCoords => {
       const cube = document.createElement('div');
       cube.classList.add('cube');
