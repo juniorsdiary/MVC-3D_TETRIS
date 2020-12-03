@@ -58,9 +58,9 @@
 // let nextFigure = [];
 //
 // let nodesLevels = document.getElementsByClassName('row');
-// const scoreEl = document.getElementById('score');
+//
 // const highScoreEl = document.getElementById('highScore');
-// const levelEl = document.getElementById('level');
+//
 // const startBtn = document.getElementById('start');
 // const loadBtn = document.getElementById('lastSave');
 // const gameOverTitle = document.getElementById('gameOver');
@@ -229,12 +229,32 @@
 //
 // const View = { render };
 
-import { IView, IRenderPayload, IRenderField, IRenderFigure } from './interfaces';
+import {
+  IView,
+  IRenderPayload,
+  IRenderField,
+  IRenderFigure,
+  IRenderStartButton,
+  IRenderDeleteLevels,
+  IRenderMoveLevel,
+  IRenderHighScore,
+  IRenderLevel,
+  IRenderScore
+} from './interfaces';
+
 import { RENDER_FUNCTIONS } from './const/RENDER_FUNCTIONS';
+
 import Field from './Field_Tetris';
 
 const sides = ['cube_side', 'cube_bottom', 'cube_top', 'cube_front', 'cube_back', 'cube_left', 'cube_right'];
 const generalClass = 'cube_side';
+
+const nodesLevels = document.getElementsByClassName('row');
+
+const startBtn = document.getElementById('start');
+const highScoreEl = document.getElementById('highScore');
+const scoreEl = document.getElementById('score');
+const levelEl = document.getElementById('level');
 
 class View implements IView {
   gameField: Field;
@@ -255,7 +275,7 @@ class View implements IView {
     this.nextFigure = [];
   }
 
-  initiateViews = () => {
+  public initiateViews = () => {
     this.gameField.createField();
     this.render({
       key: RENDER_FUNCTIONS.FIELD,
@@ -269,7 +289,34 @@ class View implements IView {
     return;
   }
 
-  renderField = ({ field }: IRenderField) => {
+  public render = ({key, data}: IRenderPayload) => {
+    switch (key) {
+      case RENDER_FUNCTIONS.FIELD:
+        return this.renderField(data);
+      case RENDER_FUNCTIONS.FIGURE:
+        return this.renderFigure(data);
+      case RENDER_FUNCTIONS.START:
+        return this.renderStartButton(data);
+      case RENDER_FUNCTIONS.CLEAR:
+        return this.clearView();
+      case RENDER_FUNCTIONS.FREEZE:
+        return this.freezeFigure();
+      case RENDER_FUNCTIONS.DELETE_LEVELS:
+        return this.deleteLevels(data);
+      case RENDER_FUNCTIONS.MOVE_LEVELS:
+        return this.moveLevels(data);
+      case RENDER_FUNCTIONS.SCORE:
+        return this.updateScore(data);
+      case RENDER_FUNCTIONS.LEVEL:
+        return this.updateLevel(data);
+      case RENDER_FUNCTIONS.CLEAR_NEXT:
+        return this.clearNext();
+      case RENDER_FUNCTIONS.HIGH_SCORE:
+        return this.updateHighScore(data);
+    }
+  }
+
+  private renderField = ({ field }: IRenderField) => {
     for (let i = 0; i < field.rows; i++) {
       const row = document.createElement('div');
       row.classList.add('row');
@@ -286,7 +333,7 @@ class View implements IView {
     }
   }
 
-  renderFigure = ({ figure }: IRenderFigure) => {
+  private renderFigure = ({ figure }: IRenderFigure) => {
     const coords = figure.currentPosition;
     const parent = figure.field.element;
     const idSelector = figure.field.selector;
@@ -304,7 +351,6 @@ class View implements IView {
       });
 
       const targetSpot = parent.children[cubeCoords[1]].children[cubeCoords[0]];
-
       if (idSelector === 'game') {
         this.figureData.push(cube);
       } else {
@@ -314,13 +360,94 @@ class View implements IView {
     });
   }
 
-  render = ({key, data}: IRenderPayload) => {
-    switch (key) {
-      case RENDER_FUNCTIONS.FIELD:
-        return this.renderField(data);
-      case RENDER_FUNCTIONS.FIGURE:
-        return this.renderFigure(data);
+  private renderStartButton = (data: IRenderStartButton) => {
+    if (startBtn) startBtn.style.color = data.value ? 'grey' : 'yellow';
+  }
+
+  private clearView = (): void => {
+    this.figureData.forEach(item => item.parentNode.removeChild(item));
+    this.figureData = [];
+  }
+
+  countLevelsToErase = (): number[] => {
+    const field = this.gameField;
+    const elements = field.element?.children;
+    if (elements) {
+      const levelsHTML = Array.from(elements);
+      const levelsToErase: number[] = [];
+      levelsHTML
+        .map(item => Array.from(item.children).every(elem => elem.firstElementChild))
+        .forEach((item, i) => (item ? levelsToErase.push(i) : null));
+      return levelsToErase;
     }
+    return [] as number[];
+  }
+
+  freezeFigure = (): void => {
+    this.figureData.map(item => {
+      item.classList.remove('activeCube');
+      item.classList.add('staticCube');
+    });
+    this.figureData = [];
+    return;
+  }
+
+  deleteLevels = ({ levelsToErase }: IRenderDeleteLevels): void => {
+    levelsToErase.forEach((levelIndex: number) => {
+      const cellsToErase = Array.from(nodesLevels[levelIndex].children);
+      cellsToErase.forEach((cell) => {
+        const removeNode = cell.firstElementChild as Node;
+        cell.removeChild(removeNode);
+      });
+    });
+    return;
+  }
+
+  moveLevels = ({ levelToMove }: IRenderMoveLevel): void => {
+    const staticCubes: any[] = [];
+    const levelsHTML = Array.from(nodesLevels);
+    // find all the static cubes above deleted level
+    levelsHTML.forEach((item, index) => {
+      if (index < levelToMove) {
+        Array.from(item.children).forEach(elem => {
+          if (elem.firstElementChild) {
+            staticCubes.push(elem);
+          }
+        });
+      }
+    });
+    // append each static cube above deleted level down.
+    staticCubes.forEach(item => {
+      const rowDown = item.parentNode.nextElementSibling;
+      if (rowDown) {
+        const cubeIndex = Array.from(item.parentNode.children).indexOf(item);
+        const cube = item.firstElementChild;
+        const cubePlace = rowDown.children;
+        cubePlace[cubeIndex].appendChild(cube);
+      }
+    });
+    return;
+  }
+
+  updateScore = ({ currentScore }: IRenderScore): void => {
+    if (scoreEl) scoreEl.innerHTML = `${currentScore}`;
+    return;
+  }
+
+  updateHighScore = ({ highScore }: IRenderHighScore): void => {
+    if (highScoreEl) highScoreEl.innerHTML = `${highScore}`;
+    return;
+  }
+
+  updateLevel = ({ level }: IRenderLevel): void => {
+    if (levelEl) levelEl.innerHTML = `${level}`;
+    return;
+  }
+
+  clearNext = (): void => {
+    this.nextFigure.forEach(item => item.parentNode.removeChild(item));
+    this.nextFigure = [];
+    return;
   }
 }
 

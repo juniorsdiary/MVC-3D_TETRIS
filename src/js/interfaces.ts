@@ -28,9 +28,14 @@ export interface IButtonData {
 }
 
 export interface IModel {
-    initiate: () => void
-    handleUserEvent: (e: KeyboardEvent) => void
+    interval: number;
+    timer: number;
+    initiate: () => void;
     view: IView;
+    handleUserEvent: (e: KeyboardEvent) => void;
+    startGame: () => void;
+    extractHighScore: () => void;
+    checkSavePoint: () => void;
 }
 
 export interface IView {
@@ -40,6 +45,7 @@ export interface IView {
     nextFigure: any[];
     initiateViews: () => void;
     render: (data: IRenderPayload) => void;
+    countLevelsToErase: () => number[];
 }
 
 export interface IControllerInitialData {
@@ -63,7 +69,16 @@ export interface IFieldInitialData {
 
 export interface IRenderPayload {
     key: string;
-    data: IRenderField | IRenderFigure | any;
+    data?:
+      IRenderField
+      | IRenderFigure
+      | IRenderStartButton
+      | IRenderDeleteLevels
+      | IRenderMoveLevel
+      | IRenderHighScore
+      | IRenderScore
+      | IRenderLevel
+      | any;
 }
 
 export interface IRenderField {
@@ -74,6 +89,30 @@ export interface IRenderFigure {
     figure: IFigure;
 }
 
+export interface IRenderStartButton {
+    value: boolean;
+}
+
+export interface IRenderDeleteLevels {
+    levelsToErase: number[];
+}
+
+export interface IRenderMoveLevel {
+    levelToMove: number;
+}
+
+export interface IRenderHighScore {
+    highScore: number;
+}
+
+export interface IRenderScore {
+    currentScore: number;
+}
+
+export interface IRenderLevel {
+    level: number;
+}
+
 export interface IFigure {
     name: string;
     positions: IPosition[];
@@ -81,6 +120,14 @@ export interface IFigure {
     currentPosition: IPosition;
     field: any;
     setInitialPosition: () => void
+    checkWayDown: () => boolean;
+    moveFigure: (type: string) => void;
+    moveDown: () => void;
+    isWayAside: (step: number) => boolean;
+    isWayAround: () => boolean;
+    sideToSide: (step: number) => void;
+    transferToField: (field: IField) => void;
+    isEndGame: () => boolean;
 }
 
 export interface IFigureInitialData {
@@ -88,7 +135,9 @@ export interface IFigureInitialData {
     field: string;
     positions: IPosition[];
 }
+
 export interface ICoordinate {
     [index: number]: number;
 }
+
 export interface IPosition extends Array<ICoordinate> {}
